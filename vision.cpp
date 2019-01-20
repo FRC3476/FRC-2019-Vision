@@ -65,20 +65,25 @@ int main(int argc, char** argv ) {
 			double mp02 = hullMoments[i].m02/hullMoments[i].m00 - centroids[i].y * centroids[i].y;
 			
 			//temp
-			mp11 = hullMoments[i].mu11;
-			mp20 = hullMoments[i].mu20;
-			mp02 = hullMoments[i].mu02;
+			mp11 = hullMoments[i].mu11/hullMoments[i].m00;
+			mp20 = hullMoments[i].mu20/hullMoments[i].m00;
+			mp02 = hullMoments[i].mu02/hullMoments[i].m00;
 			//temp
 			mp11s.push_back(mp11);
 			mp20s.push_back(mp20);
 			mp02s.push_back(mp02);
 			//temp
 
+
 			//angles[i] = 0.5 * atan( (2.0 * mp11)/(mp20-mp02) ); 
-			angles[i] = 0.5 * atan2( (2.0 * mp11), (mp20-mp02) );
-			//angles[i] = fmod(angles[i], 2 * 3.141592);
-			printf("hull %d -mp11: %f\n", i, mp11); 
-			//printf("m00 %f mp11: %f m20 %f m02 %f \n", hullMoments[i].m00, mp11, mp20, mp02);
+			double y = 2.0*mp11;
+			double x = mp20-mp02;
+			
+			angles[i] = 0.5 * atan2( y, x );
+			if(y<0) angles[i] += M_PI;
+			//if(angles[i] < 0) angles[i] += M_PI;
+			//printf("hull %d -mp11: %f\n", i, mp11); 
+			printf("num: %f denom: %f theta: %f\n", (2.0 * mp11), (mp20-mp02), angles[i]);
 		}
 		printf("\n\n");
 		
@@ -88,16 +93,19 @@ int main(int argc, char** argv ) {
        			Scalar white = Scalar(255, 255, 255 );	//gbr color space...
 			Scalar red = Scalar(0, 0, 255);
 			Scalar cyan = Scalar(255, 255, 0);
+			Scalar orange = Scalar(0, 128, 255);
        			drawContours( drawing, contours, i, white, 2, 8, hierarchy, 0, Point() );
       			drawContours(drawing, hull, i, red, FILLED);
 			circle(drawing, centroids[i], 3, cyan, -1);
-			circle(drawing, Point(mp20s[i], mp02s[i]) + centroids[i], 5, Scalar(0, 255, 255), -1);
-			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), cyan, 2);
+			line(drawing, centroids[i], Point( centroids[i].x-20*cos(angles[i]), centroids[i].y-20*sin(angles[i])), cyan,2);
+			for(int n = i+1; n < contours.size(); n++) {
+				line(drawing, centroids[i], centroids[n], orange, 2);	
+			}			
 			char c[2];
 			sprintf(c, "%d", i);
 			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, white, 2, LINE_AA); 
 		}
-
+		
 		//display
 		cv::imshow("frame", drawing);
 		cv::imshow("original", frame);
