@@ -32,7 +32,7 @@ int main(int argc, char** argv ) {
 		Canny(fbw, fbw, 100, 100*2, 3);
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
-		findContours(fbw, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0,0) );
+		findContours(fbw, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0,0) );
 		vector<vector<Point> > hull( contours.size() ); 
 		for(int i = 0; i < contours.size(); i++) {
 			convexHull(contours[i], hull[i]);
