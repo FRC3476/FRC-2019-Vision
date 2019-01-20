@@ -22,9 +22,9 @@ int main(int argc, char** argv ) {
 		Mat frame, fbw;
 
 		//Capture image, grayscale, then blur
-		//stream >> frame;
+		stream >> frame;
 		//printf("x:%d y:%d \n", frame.cols, frame.rows); 
-		frame = imread(argv[1]);
+		//frame = imread(argv[1]);
 		cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		cv::blur(fbw, fbw, Size(3,3));  
 
@@ -63,7 +63,11 @@ int main(int argc, char** argv ) {
 			double mp11 = hullMoments[i].m11/hullMoments[i].m00 - centroids[i].x * centroids[i].y;
 			double mp20 = hullMoments[i].m20/hullMoments[i].m00 - centroids[i].x * centroids[i].x;
 			double mp02 = hullMoments[i].m02/hullMoments[i].m00 - centroids[i].y * centroids[i].y;
-	
+			
+			//temp
+			mp11 = hullMoments[i].mu11;
+			mp20 = hullMoments[i].mu20;
+			mp02 = hullMoments[i].mu02;
 			//temp
 			mp11s.push_back(mp11);
 			mp20s.push_back(mp20);
@@ -91,7 +95,7 @@ int main(int argc, char** argv ) {
 			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), cyan, 2);
 			char c[2];
 			sprintf(c, "%d", i);
-			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 3, white, 2, LINE_AA); 
+			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, white, 2, LINE_AA); 
 		}
 
 		//display
