@@ -13,10 +13,10 @@ int main(int argc, char** argv ) {
 	//initialize stream
 	cv::VideoCapture stream; 
 	if(!stream.open(0)) return 0;
-	stream.set(CV_CAP_PROP_BRIGHTNESS, 0.5);
-	stream.set(CV_CAP_PROP_CONTRAST, 1.0);
-	stream.set(CV_CAP_PROP_SATURATION, 1.0);
-	stream.set(CV_CAP_PROP_EXPOSURE, 0);
+	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
+	stream.set(CAP_PROP_CONTRAST, 1.0);
+	stream.set(CAP_PROP_SATURATION, 1.0);
+	stream.set(CAP_PROP_EXPOSURE, 0);
 
 	while(1) {
 		Mat frame, fbw;
@@ -53,7 +53,7 @@ int main(int argc, char** argv ) {
 		for(int i = 0; i < hull.size(); i++) {
 			hullImage[i] = Mat::zeros( fbw.size(), CV_8UC1);
 			Mat colormat = Mat::zeros( fbw.size(), CV_8UC3);
-			drawContours(colormat, hull, i, Scalar(255,255,255), CV_FILLED);
+			drawContours(colormat, hull, i, Scalar(255,255,255), FILLED);
 			cvtColor(colormat, hullImage[i], COLOR_BGR2GRAY);
 			
 			//for(int z = 0; z < hullImage[i].
@@ -73,8 +73,8 @@ int main(int argc, char** argv ) {
 			//angles[i] = 0.5 * atan( (2.0 * mp11)/(mp20-mp02) ); 
 			angles[i] = 0.5 * atan2( (2.0 * mp11), (mp20-mp02) );
 			//angles[i] = fmod(angles[i], 2 * 3.141592);
-			//printf("theta %f\n", angles[i]); 
-			printf("m00 %f mp11: %f m20 %f m02 %f \n", hullMoments[i].m00, mp11, mp20, mp02);
+			printf("hull %d -mp11: %f\n", i, mp11); 
+			//printf("m00 %f mp11: %f m20 %f m02 %f \n", hullMoments[i].m00, mp11, mp20, mp02);
 		}
 		printf("\n\n");
 		
@@ -85,10 +85,13 @@ int main(int argc, char** argv ) {
 			Scalar red = Scalar(0, 0, 255);
 			Scalar cyan = Scalar(255, 255, 0);
        			drawContours( drawing, contours, i, white, 2, 8, hierarchy, 0, Point() );
-      			drawContours(drawing, hull, i, red, CV_FILLED);
+      			drawContours(drawing, hull, i, red, FILLED);
 			circle(drawing, centroids[i], 3, cyan, -1);
 			circle(drawing, Point(mp20s[i], mp02s[i]) + centroids[i], 5, Scalar(0, 255, 255), -1);
 			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), cyan, 2);
+			char c[2];
+			sprintf(c, "%d", i);
+			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 3, white, 2, LINE_AA); 
 		}
 
 		//display
