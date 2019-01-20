@@ -15,6 +15,8 @@ opencv2/imgproc/imgproc.hpp
 /home/ubuntu/Documents/2019/FRC-2019-Vision/opencv2/imgproc/imgproc.hpp
 stdlib.h
 -
+math.h
+-
 
 /usr/local/include/opencv/cxcore.h
 opencv2/core/core_c.h
