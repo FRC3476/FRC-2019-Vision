@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( FRC-2019-vision )
+find_package( OpenCV REQUIRED )
+add_executable( FRC-2019-vision vision.cpp )
+target_link_libraries( FRC-2019-vision ${OpenCV_LIBS} )

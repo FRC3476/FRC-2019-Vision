@@ -1,0 +1,336 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a94a7/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a94a7.dir/build.make CMakeFiles/cmTC_a94a7.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a94a7.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_a94a7.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_a94a7
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a94a7.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_a94a7.dir/CheckSymbolExists.c.o  -o cmTC_a94a7 -rdynamic 
+CMakeFiles/cmTC_a94a7.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_a94a7.dir/build.make:97: recipe for target 'cmTC_a94a7' failed
+make[1]: *** [cmTC_a94a7] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a94a7/fast' failed
+make: *** [cmTC_a94a7/fast] Error 2
+
+File /home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_98a2d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_98a2d.dir/build.make CMakeFiles/cmTC_98a2d.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_98a2d.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_98a2d.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_98a2d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_98a2d.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_98a2d.dir/CheckFunctionExists.c.o  -o cmTC_98a2d -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_98a2d.dir/build.make:97: recipe for target 'cmTC_98a2d' failed
+make[1]: *** [cmTC_98a2d] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/vision-testing/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_98a2d/fast' failed
+make: *** [cmTC_98a2d/fast] Error 2
+
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_17d67/fast"
+/usr/bin/make -f CMakeFiles/cmTC_17d67.dir/build.make CMakeFiles/cmTC_17d67.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_17d67.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_17d67.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_17d67
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_17d67.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_17d67.dir/CheckSymbolExists.c.o  -o cmTC_17d67 -rdynamic 
+CMakeFiles/cmTC_17d67.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_17d67.dir/build.make:97: recipe for target 'cmTC_17d67' failed
+make[1]: *** [cmTC_17d67] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_17d67/fast' failed
+make: *** [cmTC_17d67/fast] Error 2
+
+File /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_bdf0e/fast"
+/usr/bin/make -f CMakeFiles/cmTC_bdf0e.dir/build.make CMakeFiles/cmTC_bdf0e.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_bdf0e.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_bdf0e.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_bdf0e
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bdf0e.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_bdf0e.dir/CheckFunctionExists.c.o  -o cmTC_bdf0e -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_bdf0e.dir/build.make:97: recipe for target 'cmTC_bdf0e' failed
+make[1]: *** [cmTC_bdf0e] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_bdf0e/fast' failed
+make: *** [cmTC_bdf0e/fast] Error 2
+
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_396cd/fast"
+/usr/bin/make -f CMakeFiles/cmTC_396cd.dir/build.make CMakeFiles/cmTC_396cd.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_396cd.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_396cd.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_396cd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_396cd.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_396cd.dir/CheckSymbolExists.c.o  -o cmTC_396cd -rdynamic 
+CMakeFiles/cmTC_396cd.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_396cd.dir/build.make:97: recipe for target 'cmTC_396cd' failed
+make[1]: *** [cmTC_396cd] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_396cd/fast' failed
+make: *** [cmTC_396cd/fast] Error 2
+
+File /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_a711d/fast"
+/usr/bin/make -f CMakeFiles/cmTC_a711d.dir/build.make CMakeFiles/cmTC_a711d.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a711d.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_a711d.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_a711d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a711d.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_a711d.dir/CheckFunctionExists.c.o  -o cmTC_a711d -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_a711d.dir/build.make:97: recipe for target 'cmTC_a711d' failed
+make[1]: *** [cmTC_a711d] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/convex-hull/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_a711d/fast' failed
+make: *** [cmTC_a711d/fast] Error 2
+
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_2ac4c/fast"
+/usr/bin/make -f CMakeFiles/cmTC_2ac4c.dir/build.make CMakeFiles/cmTC_2ac4c.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_2ac4c.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_2ac4c.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_2ac4c
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2ac4c.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_2ac4c.dir/CheckSymbolExists.c.o  -o cmTC_2ac4c -rdynamic 
+CMakeFiles/cmTC_2ac4c.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_2ac4c.dir/build.make:97: recipe for target 'cmTC_2ac4c' failed
+make[1]: *** [cmTC_2ac4c] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_2ac4c/fast' failed
+make: *** [cmTC_2ac4c/fast] Error 2
+
+File /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_10f29/fast"
+/usr/bin/make -f CMakeFiles/cmTC_10f29.dir/build.make CMakeFiles/cmTC_10f29.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_10f29.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_10f29.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_10f29
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_10f29.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_10f29.dir/CheckFunctionExists.c.o  -o cmTC_10f29 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_10f29.dir/build.make:97: recipe for target 'cmTC_10f29' failed
+make[1]: *** [cmTC_10f29] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_10f29/fast' failed
+make: *** [cmTC_10f29/fast] Error 2
+
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_00bab/fast"
+/usr/bin/make -f CMakeFiles/cmTC_00bab.dir/build.make CMakeFiles/cmTC_00bab.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_00bab.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_00bab.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_00bab
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_00bab.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_00bab.dir/CheckSymbolExists.c.o  -o cmTC_00bab -rdynamic 
+CMakeFiles/cmTC_00bab.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_00bab.dir/build.make:97: recipe for target 'cmTC_00bab' failed
+make[1]: *** [cmTC_00bab] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_00bab/fast' failed
+make: *** [cmTC_00bab/fast] Error 2
+
+File /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_33ab6/fast"
+/usr/bin/make -f CMakeFiles/cmTC_33ab6.dir/build.make CMakeFiles/cmTC_33ab6.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_33ab6.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_33ab6.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_33ab6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_33ab6.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_33ab6.dir/CheckFunctionExists.c.o  -o cmTC_33ab6 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_33ab6.dir/build.make:97: recipe for target 'cmTC_33ab6' failed
+make[1]: *** [cmTC_33ab6] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/moments/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_33ab6/fast' failed
+make: *** [cmTC_33ab6/fast] Error 2
+
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_9b6ca/fast"
+/usr/bin/make -f CMakeFiles/cmTC_9b6ca.dir/build.make CMakeFiles/cmTC_9b6ca.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9b6ca.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -fPIC    -o CMakeFiles/cmTC_9b6ca.dir/CheckSymbolExists.c.o   -c /home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_9b6ca
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9b6ca.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC     CMakeFiles/cmTC_9b6ca.dir/CheckSymbolExists.c.o  -o cmTC_9b6ca -rdynamic 
+CMakeFiles/cmTC_9b6ca.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x14): undefined reference to `pthread_create'
+CheckSymbolExists.c:(.text+0x18): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_9b6ca.dir/build.make:97: recipe for target 'cmTC_9b6ca' failed
+make[1]: *** [cmTC_9b6ca] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_9b6ca/fast' failed
+make: *** [cmTC_9b6ca/fast] Error 2
+
+File /home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_d1698/fast"
+/usr/bin/make -f CMakeFiles/cmTC_d1698.dir/build.make CMakeFiles/cmTC_d1698.dir/build
+make[1]: Entering directory '/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_d1698.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_d1698.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_d1698
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d1698.dir/link.txt --verbose=1
+/usr/bin/cc  -fPIC -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_d1698.dir/CheckFunctionExists.c.o  -o cmTC_d1698 -rdynamic -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_d1698.dir/build.make:97: recipe for target 'cmTC_d1698' failed
+make[1]: *** [cmTC_d1698] Error 1
+make[1]: Leaving directory '/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_d1698/fast' failed
+make: *** [cmTC_d1698/fast] Error 2
+
+
