@@ -1,3 +1,0 @@
-/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/rebuild_cache.dir
-/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/edit_cache.dir
-/home/ubuntu/Documents/2019/FRC-2019-Vision/CMakeFiles/FRC-2019-vision.dir
