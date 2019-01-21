@@ -41,14 +41,15 @@ int main(int argc, char** argv ) {
 		//Calculate moments, centroids of each hull, angle of each hull, then final targets	
 		vector<Mat> hullImage(hull.size());
 		vector<Moments> hullMoments(hull.size());
-		vector<Point> centroids(hull.size());
+		vector<Point2d> centroids(hull.size());
 		vector<double> angles(hull.size());
-		vector<Point> targets;
+		vector<Point2d> targets;
 		//temp
 		vector<double> mp11s;
 		vector<double> mp20s;
 		vector<double> mp02s;
 		//temp		
+		vector<Point2d> o_target(hull.size());
 
 		for(int i = 0; i < hull.size(); i++) {
 			hullImage[i] = Mat::zeros( fbw.size(), CV_8UC1);
@@ -59,7 +60,7 @@ int main(int argc, char** argv ) {
 			//for(int z = 0; z < hullImage[i].
 
 			hullMoments[i] = moments(hullImage[i], true);
-			centroids[i] = Point(hullMoments[i].m10/hullMoments[i].m00, hullMoments[i].m01/hullMoments[i].m00); 
+			centroids[i] = Point2d(hullMoments[i].m10/hullMoments[i].m00, hullMoments[i].m01/hullMoments[i].m00); 
 			double mp11 = hullMoments[i].m11/hullMoments[i].m00 - centroids[i].x * centroids[i].y;
 			double mp20 = hullMoments[i].m20/hullMoments[i].m00 - centroids[i].x * centroids[i].x;
 			double mp02 = hullMoments[i].m02/hullMoments[i].m00 - centroids[i].y * centroids[i].y;
@@ -81,11 +82,36 @@ int main(int argc, char** argv ) {
 			
 			angles[i] = 0.5 * atan2( y, x );
 			if(y<0) angles[i] += M_PI;
-			//if(angles[i] < 0) angles[i] += M_PI;
-			//printf("hull %d -mp11: %f\n", i, mp11); 
-			printf("num: %f denom: %f theta: %f\n", (2.0 * mp11), (mp20-mp02), angles[i]);
+
+			o_target[i] = Point2d(cos(angles[i]), sin(angles[i]));
+			printf("theta: %f cos %f sin %f\n", angles[i], cos(angles[i]), sin(angles[i])); 
+			//printf("num: %f denom: %f theta: %f\n", (2.0 * mp11), (mp20-mp02), angles[i]);
+
 		}
-		printf("\n\n");
+		//printf("\n\n");
+		vector<vector<Point2d> > projections; 
+		
+		for(int i = 0; i < hull.size(); i++) {
+			vector<Point2d> current;
+			for(int n = i+1; n < hull.size(); n++) {
+				//printf("%f %f\n", o_target[i].x, o_target[i].y); 
+
+				Point2d connector = centroids[n] - centroids[i];
+
+				//printf("%f %f\n", connector.x, connector.y); 
+				Point2d proj_i = (connector.ddot(o_target[i])/(connector.x*connector.x + connector.y*connector.y)) * connector;//proj of i on connector
+				Point2d proj_n = (connector.ddot(o_target[n])/(connector.x*connector.x + connector.y*connector.y)) * connector;//proj of i on connector
+				current.push_back(proj_i);
+				current.push_back(proj_n);
+				//if(abs(dot_pi-dot_pn) <= 1.0 && dot_pi <= 0 && dot_pn >= 0) printf("pair is %d and %d\n", i, n);
+				//printf("proji: x %f y %f ---- projn x %f y %f \n",proj_i.x, proj_i.y, proj_n.x, proj_n.y);
+				Point2d sum = proj_i + proj_n;
+				printf("ox %f oy %f\n", sum.x, sum.y); 
+			}
+			projections.push_back(current);	
+		}
+		printf("\n");
+
 		
 		//Draw everything...
 		Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
@@ -97,18 +123,26 @@ int main(int argc, char** argv ) {
        			drawContours( drawing, contours, i, white, 2, 8, hierarchy, 0, Point() );
       			drawContours(drawing, hull, i, red, FILLED);
 			circle(drawing, centroids[i], 3, cyan, -1);
-			line(drawing, centroids[i], Point( centroids[i].x-20*cos(angles[i]), centroids[i].y-20*sin(angles[i])), cyan,2);
+			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), cyan,2);
+			//
 			for(int n = i+1; n < contours.size(); n++) {
-				line(drawing, centroids[i], centroids[n], orange, 2);	
-			}			
+				line(drawing, centroids[i], centroids[n], orange, 2);
+					
+			}	
+
 			char c[2];
 			sprintf(c, "%d", i);
 			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, white, 2, LINE_AA); 
+
+			for(int n = 0; n < projections[i].size(); n++) {
+				line(drawing, centroids[n], centroids[n] + projections[i][n]*500, white, 3);
+			}		
+
 		}
 		
 		//display
 		cv::imshow("frame", drawing);
-		cv::imshow("original", frame);
+		//cv::imshow("original", frame);
 		if(cv::waitKey(10)==27)
 		{
 			stream.release();
