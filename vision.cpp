@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-//#include "opencv2/highgui/highgui.hpp>"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <stdlib.h>
 #include <math.h>
 
+
+#define COLOR_WHITE Scalar(255, 255, 255 )	//gbr color space...
+#define COLOR_RED Scalar(0, 0, 255)
+#define COLOR_CYAN Scalar(255, 255, 0)
+#define COLOR_ORANGE Scalar(0, 128, 255)
 
 using namespace cv;
 using namespace std;
@@ -119,33 +123,37 @@ int main(int argc, char** argv ) {
 			projections.push_back(current);	
 		}
 		printf("\n");
-		for(int i = 0; i < pairs.size(); i++) printf("%d %d \n\n", pairs[i].x, pairs[i].y);
+		//for(int i = 0; i < pairs.size(); i++) printf("%d %d \n\n", pairs[i].x, pairs[i].y);
 		
 		//Draw everything...
 		Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		for( int i = 0; i< contours.size(); i++ ) {
-       			Scalar white = Scalar(255, 255, 255 );	//gbr color space...
-			Scalar red = Scalar(0, 0, 255);
-			Scalar cyan = Scalar(255, 255, 0);
-			Scalar orange = Scalar(0, 128, 255);
-       			drawContours( drawing, contours, i, white, 2, 8, hierarchy, 0, Point() );
-      			drawContours(drawing, hull, i, red, FILLED);
-			circle(drawing, centroids[i], 3, cyan, -1);
-			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), cyan,2);
-			//
+       			drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
+      			drawContours(drawing, hull, i, COLOR_RED, FILLED);
+			circle(drawing, centroids[i], 3, COLOR_CYAN, -1);
+			line(drawing, centroids[i], Point( centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), COLOR_CYAN,2);
+			
+			/*
 			for(int n = i+1; n < contours.size(); n++) {
 				line(drawing, centroids[i], centroids[n], orange, 2);
 					
-			}	
+			}*/	
+			
 
 			char c[2];
 			sprintf(c, "%d", i);
-			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, white, 2, LINE_AA); 
+			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, COLOR_WHITE, 2, LINE_AA); 
 
-			for(int n = 0; n < projections[i].size(); n++) {
-				line(drawing, centroids[n], centroids[n] + projections[i][n]*170, white, 3);
-			}		
+			//draw projections
+			//for(int n = 0; n < projections[i].size(); n++) {
+			//	line(drawing, centroids[n], centroids[n] + projections[i][n]*170, COLOR_WHITE, 3);
+			//}		
 
+		}
+		//draw pair connectors and centroids only if they are an actual pair
+		for(int n = 0; n <pairs.size(); n++) {
+			line(drawing, centroids[pairs[n].x], centroids[pairs[n].y], COLOR_ORANGE, 2);
+			circle(drawing, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, 5, COLOR_ORANGE, -1);
 		}
 		
 		//display
