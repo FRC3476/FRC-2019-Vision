@@ -9,6 +9,11 @@
 using namespace cv;
 using namespace std;
 
+float magnitude(Point2d p) {
+	return sqrt(p.x * p.x + p.y * p.y);
+
+}
+
 int main(int argc, char** argv ) {
 	//initialize stream
 	cv::VideoCapture stream; 
@@ -88,8 +93,10 @@ int main(int argc, char** argv ) {
 			//printf("num: %f denom: %f theta: %f\n", (2.0 * mp11), (mp20-mp02), angles[i]);
 
 		}
-		//printf("\n\n");
-		vector<vector<Point2d> > projections; 
+		
+		//find the target pairs
+		vector<vector<Point2d> > projections;
+		vector<Point> pairs;
 		
 		for(int i = 0; i < hull.size(); i++) {
 			vector<Point2d> current;
@@ -106,12 +113,13 @@ int main(int argc, char** argv ) {
 				//if(abs(dot_pi-dot_pn) <= 1.0 && dot_pi <= 0 && dot_pn >= 0) printf("pair is %d and %d\n", i, n);
 				//printf("proji: x %f y %f ---- projn x %f y %f \n",proj_i.x, proj_i.y, proj_n.x, proj_n.y);
 				Point2d sum = proj_i + proj_n;
-				printf("ox %f oy %f\n", sum.x, sum.y); 
+				double mag = magnitude(sum);
+				if(mag <= 0.3 && connector.ddot(o_target[i]) < 0) pairs.push_back(Point(i, n)); 
 			}
 			projections.push_back(current);	
 		}
 		printf("\n");
-
+		for(int i = 0; i < pairs.size(); i++) printf("%d %d \n\n", pairs[i].x, pairs[i].y);
 		
 		//Draw everything...
 		Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
@@ -135,7 +143,7 @@ int main(int argc, char** argv ) {
 			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, white, 2, LINE_AA); 
 
 			for(int n = 0; n < projections[i].size(); n++) {
-				line(drawing, centroids[n], centroids[n] + projections[i][n]*500, white, 3);
+				line(drawing, centroids[n], centroids[n] + projections[i][n]*170, white, 3);
 			}		
 
 		}
