@@ -11,6 +11,8 @@
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
 #define MAX_MAG_ERROR 0.3
+#define SIZE_TO_DISTANCE_RATIO 2.15
+#define MAX_SIZE_TO_DISTANCE_ERROR 1.5
 
 using namespace cv;
 using namespace std;
@@ -20,6 +22,7 @@ float magnitude(Point2d p) {
 	return sqrt(p.x * p.x + p.y * p.y);
 
 }
+
 
 int main(int argc, char** argv ) {
 	//initialize stream and camera parameters
@@ -102,7 +105,20 @@ int main(int argc, char** argv ) {
 				//Verify & store pairs by checking that projections net zero and face the right way
 				Point2d sum = proj_i + proj_n;
 				double mag = magnitude(sum);
-				if(mag <= MAX_MAG_ERROR && connector.ddot(o_target[i]) < 0) {
+				double ratio = magnitude(connector)/sqrt(hullMoments[i].m00 + hullMoments[n].m00);
+				printf("ratio %f\n", ratio);
+				//TODO choose shortest connector pair test
+				if(mag <= MAX_MAG_ERROR && connector.ddot(o_target[i]) < 0
+				   && abs(ratio-SIZE_TO_DISTANCE_RATIO) <= MAX_SIZE_TO_DISTANCE_ERROR) {
+					/*
+					bool flag = false;
+					int index = 0;
+					for(int z = 0; z < pairs.size(); z++) {
+						if(magnitude(connector) <= magnitude(centroids[pairs[z].x] - centroids[pairs[z].y])) {
+							flag = true;
+							index = z;
+						}
+					} */
 					pairs.push_back(Point(i, n)); 
 					targets.push_back((centroids[i] + centroids[n])/2);
 				}
