@@ -10,7 +10,7 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.3
+#define MAX_MAG_ERROR 0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.15
 #define MAX_SIZE_TO_DISTANCE_ERROR 1.5
 
@@ -99,28 +99,37 @@ int main(int argc, char** argv ) {
 						 (connector.x*connector.x + connector.y*connector.y)) * connector; 
 				Point2d proj_n = (connector.ddot(o_target[n])/
 						 (connector.x*connector.x + connector.y*connector.y)) * connector; 
+				proj_i = proj_i/magnitude(connector);
+				proj_n = proj_n/magnitude(connector);
 				current.push_back(proj_i);
 				current.push_back(proj_n); //TODO normalize projections
 				
 				//Verify & store pairs by checking that projections net zero and face the right way
 				Point2d sum = proj_i + proj_n;
 				double mag = magnitude(sum);
+				printf("mag of sum %f\n", mag);
 				double ratio = magnitude(connector)/sqrt(hullMoments[i].m00 + hullMoments[n].m00);
-				printf("ratio %f\n", ratio);
+				//printf("ratio %f\n", ratio);
 				//TODO choose shortest connector pair test
-				if(mag <= MAX_MAG_ERROR && connector.ddot(o_target[i]) < 0
+				if(mag <= MAX_MAG_ERROR && connector.ddot(o_target[i]) < 0 
 				   && abs(ratio-SIZE_TO_DISTANCE_RATIO) <= MAX_SIZE_TO_DISTANCE_ERROR) {
-					/*
+					
 					bool flag = false;
-					int index = 0;
 					for(int z = 0; z < pairs.size(); z++) {
-						if(magnitude(connector) <= magnitude(centroids[pairs[z].x] - centroids[pairs[z].y])) {
+						if(pairs[z].x == i || pairs[z].y == i) {
 							flag = true;
-							index = z;
+							if(magnitude(connector) <= magnitude(centroids[pairs[z].x] - centroids[pairs[z].y])) {
+								pairs[z] = Point(i, n);
+								targets[z] = (centroids[i] + centroids[n])/2;
+							} else {
+								break;
+							} 
 						}
-					} */
-					pairs.push_back(Point(i, n)); 
-					targets.push_back((centroids[i] + centroids[n])/2);
+					} 
+					if(flag == false) {
+						pairs.push_back(Point(i, n)); 
+						targets.push_back((centroids[i] + centroids[n])/2);
+					}
 				}
 			}
 			projections.push_back(current);	
