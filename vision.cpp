@@ -3,9 +3,9 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <stdlib.h>
 #include <math.h>
+#include "network.h"
 
-
-#define COLOR_WHITE Scalar(255, 255, 255)	//gbr color space...
+#define COLOR_WHITE Scalar(255, 255, 255)	//bgr color space...
 #define COLOR_RED Scalar(0, 0, 255)
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
@@ -28,6 +28,8 @@ int main(int argc, char** argv ) {
 	//initialize stream and camera parameters
 	cv::VideoCapture stream; 
 	if(!stream.open(0)) return 0;
+	//These settings might not work
+	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
 	stream.set(CAP_PROP_CONTRAST, 1.0);
 	stream.set(CAP_PROP_SATURATION, 1.0);
@@ -36,17 +38,25 @@ int main(int argc, char** argv ) {
 	while(1) {
 		//Capture image, grayscale, then blur
 		Mat frame, fbw;
+		//Reading the img takes a pretty long time
+		//So we can try putting this on a separate thread
 		stream >> frame;
-		//frame = imread(argv[1]);
+		frame = imread(argv[1]);
 		cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		cv::blur(fbw, fbw, Size(3,3));  
+		
+		/*You dont need to do canny. The exposure
+		should be low enough so that the only
+		thing you see are the glowing tape. So
+		you should be able to just do findContours*/
 
 		//Canny edge detect then contour detect
 		Canny(fbw, fbw, 100, 100*2, 3);
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
 		findContours(fbw, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0,0) );
-
+		
+		
 		//Convex hull on contours
 		vector<vector<Point> > hull( contours.size() ); 
 		for(int i = 0; i < contours.size(); i++) {
@@ -163,11 +173,14 @@ int main(int argc, char** argv ) {
 		//Display program vision and original camera frame
 		cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
+		//waitKey pauses for whatever ms so only put 1 inside
+		//also imshow doesnt work if you don't call waitKey
 		if(cv::waitKey(10)==27)
 		{
 			stream.release();
 			break;
 		}
+		sendUDP();
 	}
 	return 0;
 }
