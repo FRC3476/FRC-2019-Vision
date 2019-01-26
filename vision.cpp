@@ -16,6 +16,13 @@
 
 using namespace cv;
 using namespace std;
+/*
+struct exp_data {
+	Point2d centroid;
+	float connectorMag;
+
+}; */
+
 
 //Return the magnitude of a vector
 float magnitude(Point2d p) {
@@ -36,6 +43,8 @@ int main(int argc, char** argv ) {
 	stream.set(CAP_PROP_EXPOSURE, 0);
 
 	while(1) {
+		std::vector<exp_data> data; 
+		
 		//Capture image, grayscale, then blur
 		Mat frame, fbw;
 		//Reading the img takes a pretty long time
@@ -169,7 +178,12 @@ int main(int argc, char** argv ) {
 			line(drawing, centroids[pairs[n].x], centroids[pairs[n].y], COLOR_ORANGE, 2);
 			circle(drawing, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, 5, COLOR_ORANGE, -1);
 		}
-		
+
+		for(int n = 0; n < pairs.size(); n++) {
+			float mag = magnitude(centroids[pairs[n].x] - centroids[pairs[n].y]);
+			exp_data t  = {(centroids[pairs[n].x] + centroids[pairs[n].y])/2, mag}; 
+			data.push_back(t);
+		}
 		//Display program vision and original camera frame
 		cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
@@ -180,7 +194,7 @@ int main(int argc, char** argv ) {
 			stream.release();
 			break;
 		}
-		sendUDP();
+		sendUDP(data);
 	}
 	return 0;
 }
