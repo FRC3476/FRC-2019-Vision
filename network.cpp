@@ -6,7 +6,8 @@
 #include <stdlib.h>
 
 #define PORT 8000
-#define IP "10.34.76.75"
+//#define IP "10.34.76.75"
+#define IP "127.0.0.1"
 
 int sendUDP(std::vector<exp_data> d) {
 	float *data = (float *)malloc(sizeof(float)*3*d.size());

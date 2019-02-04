@@ -34,6 +34,9 @@ float magnitude(Point2d p) {
 int main(int argc, char** argv ) {
 	//initialize stream and camera parameters
 	cv::VideoCapture stream; 
+	cv::VideoWriter writer; 
+	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
 	if(!stream.open(0)) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
@@ -50,7 +53,7 @@ int main(int argc, char** argv ) {
 		//Reading the img takes a pretty long time
 		//So we can try putting this on a separate thread
 		stream >> frame;
-		frame = imread(argv[1]);
+		//frame = imread(argv[1]);
 		cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		cv::blur(fbw, fbw, Size(3,3));  
 		
@@ -126,7 +129,7 @@ int main(int argc, char** argv ) {
 				//Verify & store pairs by checking that projections net zero and face the right way
 				Point2d sum = proj_i + proj_n;
 				double mag = magnitude(sum);
-				printf("mag of sum %f\n", mag);
+				//printf("mag of sum %f\n", mag);
 				double ratio = magnitude(connector)/sqrt(hullMoments[i].m00 + hullMoments[n].m00);
 				//printf("ratio %f\n", ratio);
 				//TODO choose shortest connector pair test
@@ -195,6 +198,7 @@ int main(int argc, char** argv ) {
 			break;
 		}
 		sendUDP(data);
+		writer.write(drawing);
 	}
 	return 0;
 }
