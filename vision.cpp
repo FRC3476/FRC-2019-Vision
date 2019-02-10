@@ -10,9 +10,11 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.0015
+#define MAX_MAG_ERROR 0.0015 
+//0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.15
-#define MAX_SIZE_TO_DISTANCE_ERROR 1.5
+#define MAX_SIZE_TO_DISTANCE_ERROR 2.5 
+//1.5
 
 using namespace cv;
 using namespace std;
