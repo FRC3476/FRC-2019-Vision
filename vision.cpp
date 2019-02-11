@@ -10,10 +10,10 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.0015 
+#define MAX_MAG_ERROR 0.0025 
 //0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.15
-#define MAX_SIZE_TO_DISTANCE_ERROR 2.5 
+#define MAX_SIZE_TO_DISTANCE_ERROR 1.5 
 //1.5
 
 using namespace cv;
@@ -36,10 +36,10 @@ float magnitude(Point2d p) {
 int main(int argc, char** argv ) {
 	//initialize stream and camera parameters
 	cv::VideoCapture stream; 
-	//cv::VideoWriter writer; 
+	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
-	//writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open(2)) return 0;
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
+	if(!stream.open(4)) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
@@ -180,6 +180,7 @@ int main(int argc, char** argv ) {
 			   }		
 			*/
 		}
+		line(drawing, Point(320, 0), Point(320, 480), COLOR_WHITE, 2);
 		//draw pair connectors and centroids only if they are an actual pair
 		for(int n = 0; n <pairs.size(); n++) {
 			line(drawing, centroids[pairs[n].x], centroids[pairs[n].y], COLOR_ORANGE, 2);
@@ -202,7 +203,7 @@ int main(int argc, char** argv ) {
 			break;
 		}
 		sendUDP(data);
-		//writer.write(drawing);
+		writer.write(drawing);
 	}
 	return 0;
 }
