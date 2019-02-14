@@ -14,7 +14,7 @@
 #define MAX_MAG_ERROR 0.0025 
 //0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.15
-#define MAX_SIZE_TO_DISTANCE_ERROR 1.5 
+#define MAX_SIZE_TO_DISTANCE_ERROR 0.4 
 //1.5
 
 using namespace cv;
@@ -41,7 +41,7 @@ int main(int argc, char** argv ) {
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
 	//writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open(2)) return 0;
+	if(!stream.open(0)) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
@@ -196,6 +196,10 @@ int main(int argc, char** argv ) {
 			logLine << centroids[pairs[n].x].x << " " << centroids[pairs[n].x].y << " " 
 				<< centroids[pairs[n].y].x << " " << centroids[pairs[n].y].y << " "
 				<< hullMoments[pairs[n].x].m00 << " " << hullMoments[pairs[n].y].m00 << "\n";
+			float distance = 1201.11869 * pow(mag, -1.13964912);
+			char dist[10];
+			sprintf(dist, "%f", distance);
+			putText(drawing, dist, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, FONT_HERSHEY_SIMPLEX, 1, COLOR_WHITE, 2, LINE_AA);
 			log(logLine.str());
 			data.push_back(t);
 		}
@@ -204,11 +208,13 @@ int main(int argc, char** argv ) {
 		//cv::imshow("original", frame);
 		//waitKey pauses for whatever ms so only put 1 inside
 		//also imshow doesnt work if you don't call waitKey
+		
 		if(cv::waitKey(10)==27)
 		{
 			stream.release();
 			break;
-		}
+		} 
+		//cv::waitKey();
 		sendUDP(data);
 		//writer.write(drawing);
 	}
