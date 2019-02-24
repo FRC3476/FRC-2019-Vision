@@ -40,7 +40,7 @@ int main(int argc, char** argv ) {
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
-	//writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.79:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
 	if(!stream.open(0)) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
@@ -61,6 +61,7 @@ int main(int argc, char** argv ) {
 		//So we can try putting this on a separate thread
 		stream >> frame;
 		//frame = imread(argv[1]);
+		//frame = imread("/static-tests/static5.png");
 		cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		cv::blur(fbw, fbw, Size(3,3));  
 		
@@ -204,7 +205,7 @@ int main(int argc, char** argv ) {
 			data.push_back(t);
 		}
 		//Display program vision and original camera frame
-		cv::imshow("frame", drawing);
+		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
 		//waitKey pauses for whatever ms so only put 1 inside
 		//also imshow doesnt work if you don't call waitKey
@@ -216,7 +217,7 @@ int main(int argc, char** argv ) {
 		} 
 		//cv::waitKey();
 		sendUDP(data);
-		//writer.write(drawing);
+		writer.write(drawing);
 	}
 	return 0;
 }
