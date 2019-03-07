@@ -11,7 +11,7 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.0025 
+#define MAX_MAG_ERROR 0.025 
 //0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.15
 #define MAX_SIZE_TO_DISTANCE_ERROR 0.4 
@@ -40,8 +40,8 @@ int main(int argc, char** argv ) {
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
-	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=4000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.79:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open(0)) return 0;
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=1000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.54:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
+	if(!stream.open("/dev/v4l/by-id/usb-Microsoft_Microsoft®_LifeCam_HD-3000-video-index0")) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
@@ -51,7 +51,9 @@ int main(int argc, char** argv ) {
 
 	setupUDP();
 	initLog();
+	int prevTime;
 	while(1) {
+		if(!stream.isOpened()) return -1;
 		std::stringstream logLine;
 		std::vector<exp_data> data; 
 		
@@ -59,6 +61,7 @@ int main(int argc, char** argv ) {
 		Mat frame, fbw;
 		//Reading the img takes a pretty long time
 		//So we can try putting this on a separate thread
+		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
 		//frame = imread(argv[1]);
 		//frame = imread("/static-tests/static5.png");
