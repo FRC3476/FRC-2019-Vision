@@ -23,7 +23,9 @@
 
 #echo "running Vision" >> /tmp/jetpack.log
 #touch /tmp/vision.log
-echo "running vision" >> /tmp/vision.log
-sh /home/ubuntu/Documents/2019/FRC-2019-Vision/run.sh &
-echo "vision failed"
+#echo "running vision" >> /tmp/vision.log
+nohup sh /home/ubuntu/Documents/2019/FRC-2019-Vision/driver-vision.sh || /bin/true &  > /tmp/vision.log
+sh /home/ubuntu/Documents/2019/FRC-2019-Vision/run.sh >> /tmp/vision.log & 
+#sh /home/ubuntu/Documents/2019/FRC-2019-Vision/run.sh || /bin/true &
+#echo "vision failed"
 exit 0

@@ -11,11 +11,12 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.025 
+#define MAX_MAG_ERROR 0.0045 
 //0.0015
-#define SIZE_TO_DISTANCE_RATIO 2.15
-#define MAX_SIZE_TO_DISTANCE_ERROR 0.4 
+#define SIZE_TO_DISTANCE_RATIO 2.4
+#define MAX_SIZE_TO_DISTANCE_ERROR 0.3 
 //1.5
+#define SMALL_PIXEL_CULL 50
 
 using namespace cv;
 using namespace std;
@@ -40,14 +41,15 @@ int main(int argc, char** argv ) {
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
-	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=1000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.54:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open("/dev/v4l/by-id/usb-Microsoft_Microsoft®_LifeCam_HD-3000-video-index0")) return 0;
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=1000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.54:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
+	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0")) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
 	stream.set(CAP_PROP_CONTRAST, 1.0);
 	stream.set(CAP_PROP_SATURATION, 1.0);
-	stream.set(CAP_PROP_EXPOSURE, 0);
+	stream.set(CAP_PROP_EXPOSURE, 0.001);
+	stream.set(CAP_PROP_FPS, 30);
 
 	setupUDP();
 	initLog();
@@ -58,15 +60,23 @@ int main(int argc, char** argv ) {
 		std::vector<exp_data> data; 
 		
 		//Capture image, grayscale, then blur
-		Mat frame, fbw;
+		Mat frame, colorFilter, fbw;
 		//Reading the img takes a pretty long time
 		//So we can try putting this on a separate thread
 		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
+		//writer.write(frame);
 		//frame = imread(argv[1]);
 		//frame = imread("/static-tests/static5.png");
-		cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
-		cv::blur(fbw, fbw, Size(3,3));  
+		cv::blur(frame, frame, Size(3,3));
+
+		cv::inRange(frame, Scalar(0, 80, 0), Scalar(64, 255, 64), fbw);
+		//std::cout << colorFilter.depth() << std::endl;
+		//std::cout << colorFilter.channels() << std::endl;
+		
+		//cv::cvtColor(colorFilter, colorFilter, COLOR_GRAY2BGR);
+		//writer.write(colorFilter);	
+		//cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		
 		/*You dont need to do canny. The exposure
 		should be low enough so that the only
@@ -104,7 +114,7 @@ int main(int argc, char** argv ) {
 			//calculate moments and centroids
 			hullMoments[i] = moments(hullImage[i], true);
 			centroids[i] = Point2d(hullMoments[i].m10/hullMoments[i].m00, hullMoments[i].m01/hullMoments[i].m00); 
-			
+			//if(hullMoments[i].m00 < 10) ;
 			//calculate second order mu prime central moments
 			double mp11 = hullMoments[i].mu11/hullMoments[i].m00;
 			double mp20 = hullMoments[i].mu20/hullMoments[i].m00;
@@ -123,8 +133,10 @@ int main(int argc, char** argv ) {
 		vector<vector<Point2d> > projections; //projection vectors
 		vector<Point> pairs; //indicies of each pair
 		for(int i = 0; i < hull.size(); i++) {
+			if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue; //magic numbers
 			vector<Point2d> current;
 			for(int n = i+1; n < hull.size(); n++) {
+				if(hullMoments[n].m00 < SMALL_PIXEL_CULL) continue; //magic numbers
 				Point2d connector = centroids[n] - centroids[i]; //calculate line that passes two hulls
 				
 				//projections of hull vectors i and n on connector vector
@@ -171,6 +183,7 @@ int main(int argc, char** argv ) {
 		//Draw everything...
 		Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		for( int i = 0; i< contours.size(); i++ ) {
+			if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
       			drawContours(drawing, hull, i, COLOR_RED, FILLED);
 			circle(drawing, centroids[i], 3, COLOR_CYAN, -1);
@@ -196,15 +209,15 @@ int main(int argc, char** argv ) {
 
 		for(int n = 0; n < pairs.size(); n++) {
 			float mag = magnitude(centroids[pairs[n].x] - centroids[pairs[n].y]);
-			exp_data t  = {(centroids[pairs[n].x] + centroids[pairs[n].y])/2, mag}; 
+			float distance = 6232.6 * pow(mag, -1.084);
+			exp_data t  = {(centroids[pairs[n].x] + centroids[pairs[n].y])/2, mag, distance}; 
 			logLine << centroids[pairs[n].x].x << " " << centroids[pairs[n].x].y << " " 
 				<< centroids[pairs[n].y].x << " " << centroids[pairs[n].y].y << " "
 				<< hullMoments[pairs[n].x].m00 << " " << hullMoments[pairs[n].y].m00 << "\n";
-			float distance = 1201.11869 * pow(mag, -1.13964912);
 			char dist[10];
 			sprintf(dist, "%f", distance);
 			putText(drawing, dist, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, FONT_HERSHEY_SIMPLEX, 1, COLOR_WHITE, 2, LINE_AA);
-			log(logLine.str());
+			//log(logLine.str());
 			data.push_back(t);
 		}
 		//Display program vision and original camera frame

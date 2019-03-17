@@ -24,19 +24,20 @@ void setupUDP() {
 }
 
 int sendUDP(std::vector<exp_data> d) {
-	float *data = (float *)malloc(sizeof(float)*3*d.size());
+	float *data = (float *)malloc(sizeof(float)*4*d.size());
 	int c = 0;
 	for(int i = 0; i < d.size(); i++) {
 		data[c] = (float)d[i].centroid.x;
 		data[c+1] = (float)d[i].centroid.y;
 		data[c+2] = (float)d[i].connectorMag;
-		c+=3;
+		data[c+3] = (float)d[i].distance;
+		c+=4;
 	}
 
 	//printf("%f", data[0]);
 	
 
-	sendto(s, data, sizeof(float)*3*d.size(), 0, (sockaddr*)&server, sizeof(server));
+	sendto(s, data, sizeof(float)*4*d.size(), 0, (sockaddr*)&server, sizeof(server));
 	
 	return 0; 
 }
