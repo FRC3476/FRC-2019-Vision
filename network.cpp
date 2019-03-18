@@ -5,7 +5,7 @@
 #include <cstring>
 #include <stdlib.h>
 
-#define PORT 5001
+#define PORT 5805
 #define IP "10.34.76.75"
 //#define IP "127.0.0.1"
 

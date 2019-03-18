@@ -5,16 +5,17 @@
 #include <math.h>
 #include "log.h"
 #include "network.h"
+#include <unistd.h>
 
 #define COLOR_WHITE Scalar(255, 255, 255)	//bgr color space...
 #define COLOR_RED Scalar(0, 0, 255)
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.0045 
+#define MAX_MAG_ERROR 0.0085 
 //0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.4
-#define MAX_SIZE_TO_DISTANCE_ERROR 0.3 
+#define MAX_SIZE_TO_DISTANCE_ERROR 0.5 
 //1.5
 #define SMALL_PIXEL_CULL 50
 
@@ -41,7 +42,7 @@ int main(int argc, char** argv ) {
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
-	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=1000000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.54:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
+	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=125000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.5:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
 	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0")) return 0;
 	//These settings might not work
 	//We might have to set these in the startup script
@@ -49,12 +50,16 @@ int main(int argc, char** argv ) {
 	stream.set(CAP_PROP_CONTRAST, 1.0);
 	stream.set(CAP_PROP_SATURATION, 1.0);
 	stream.set(CAP_PROP_EXPOSURE, 0.001);
-	stream.set(CAP_PROP_FPS, 30);
+	stream.set(CAP_PROP_FPS, 60);
 
 	setupUDP();
 	initLog();
 	int prevTime;
-	while(1) {
+	int c = 0;
+	usleep(2000000);
+
+	while(1) { 
+		c+=1;
 		if(!stream.isOpened()) return -1;
 		std::stringstream logLine;
 		std::vector<exp_data> data; 
@@ -181,17 +186,18 @@ int main(int argc, char** argv ) {
 		}
 		
 		//Draw everything...
-		Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
-  		for( int i = 0; i< contours.size(); i++ ) {
+		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
+  		Mat drawing = frame;
+		for( int i = 0; i< contours.size(); i++ ) {
 			if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
-      			drawContours(drawing, hull, i, COLOR_RED, FILLED);
+      			drawContours(drawing, hull, i, COLOR_RED, /*FILLED*/2);
 			circle(drawing, centroids[i], 3, COLOR_CYAN, -1);
 			line(drawing, centroids[i], Point(centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), COLOR_CYAN,2);
 			
 			char c[2];
 			sprintf(c, "%d", i);
-			putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 1, COLOR_WHITE, 2, LINE_AA); 
+			//putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 0.3, COLOR_WHITE, 2, LINE_AA); 
 
 			//draw projection vectors
 			/*
@@ -215,11 +221,13 @@ int main(int argc, char** argv ) {
 				<< centroids[pairs[n].y].x << " " << centroids[pairs[n].y].y << " "
 				<< hullMoments[pairs[n].x].m00 << " " << hullMoments[pairs[n].y].m00 << "\n";
 			char dist[10];
-			sprintf(dist, "%f", distance);
-			putText(drawing, dist, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, FONT_HERSHEY_SIMPLEX, 1, COLOR_WHITE, 2, LINE_AA);
+			sprintf(dist, "%.2f", distance);
+			putText(drawing, dist, (centroids[pairs[n].x] + centroids[pairs[n].y])/2, FONT_HERSHEY_SIMPLEX, 0.5, COLOR_WHITE, 2, LINE_AA);
 			//log(logLine.str());
 			data.push_back(t);
 		}
+
+		if(c%20>10) circle(drawing, Point(10, 10), 3, COLOR_RED, -1);
 		//Display program vision and original camera frame
 		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
