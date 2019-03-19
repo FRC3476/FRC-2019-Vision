@@ -77,7 +77,7 @@ int main(int argc, char** argv ) {
 		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
 		clock_t cur = clock();
-		if((double)(cur - prevTime)/CLOCKS_PER_SEC > 0.5) {
+		if((double)(cur - prevTime)/CLOCKS_PER_SEC > 2.0) {
 			return -1;
 			
 		}
