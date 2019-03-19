@@ -6,6 +6,7 @@
 #include "log.h"
 #include "network.h"
 #include <unistd.h>
+#include <time.h>
 
 #define COLOR_WHITE Scalar(255, 255, 255)	//bgr color space...
 #define COLOR_RED Scalar(0, 0, 255)
@@ -21,6 +22,7 @@
 
 using namespace cv;
 using namespace std;
+
 /*
 struct exp_data {
 	Point2d centroid;
@@ -54,9 +56,13 @@ int main(int argc, char** argv ) {
 
 	setupUDP();
 	initLog();
-	int prevTime;
+	clock_t prevTime;
 	int c = 0;
-	usleep(2000000);
+	usleep(1000000);
+	for(int i = 0; i < 30; i++) {
+		Mat frame;
+		stream >> frame;
+	}
 
 	while(1) { 
 		c+=1;
@@ -70,12 +76,18 @@ int main(int argc, char** argv ) {
 		//So we can try putting this on a separate thread
 		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
+		clock_t cur = clock();
+		if((double)(cur - prevTime)/CLOCKS_PER_SEC > 0.5) {
+			return -1;
+			
+		}
+		prevTime = cur;
 		//writer.write(frame);
 		//frame = imread(argv[1]);
 		//frame = imread("/static-tests/static5.png");
 		cv::blur(frame, frame, Size(3,3));
 
-		cv::inRange(frame, Scalar(0, 80, 0), Scalar(64, 255, 64), fbw);
+		cv::inRange(frame, Scalar(0, 64, 0), Scalar(32, 255, 32), fbw);
 		//std::cout << colorFilter.depth() << std::endl;
 		//std::cout << colorFilter.channels() << std::endl;
 		
@@ -89,7 +101,7 @@ int main(int argc, char** argv ) {
 		you should be able to just do findContours*/
 
 		//Canny edge detect then contour detect
-		Canny(fbw, fbw, 100, 100*2, 3);
+		//Canny(fbw, fbw, 100, 100*2, 3);
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
 		findContours(fbw, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0,0) );
@@ -187,7 +199,8 @@ int main(int argc, char** argv ) {
 		
 		//Draw everything...
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
-  		Mat drawing = frame;
+  		cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
+		Mat drawing = fbw;
 		for( int i = 0; i< contours.size(); i++ ) {
 			if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
