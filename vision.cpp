@@ -81,6 +81,7 @@ int main(int argc, char** argv ) {
 			return -1;
 			
 		}
+		double fps = 1.0/((double)(cur-prevTime)/CLOCKS_PER_SEC);
 		prevTime = cur;
 		//writer.write(frame);
 		//frame = imread(argv[1]);
@@ -241,6 +242,9 @@ int main(int argc, char** argv ) {
 		}
 
 		if(c%20>10) circle(drawing, Point(10, 10), 3, COLOR_RED, -1);
+		char fpsStr[5];
+		sprintf(fpsStr, "%.0f", fps);
+		putText(drawing, fpsStr, Point(630, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 		//Display program vision and original camera frame
 		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);

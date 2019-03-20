@@ -38,6 +38,6 @@ int sendUDP(std::vector<exp_data> d) {
 	
 
 	sendto(s, data, sizeof(float)*4*d.size(), 0, (sockaddr*)&server, sizeof(server));
-	
+	free(data);	
 	return 0; 
 }
