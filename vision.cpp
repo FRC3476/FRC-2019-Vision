@@ -45,7 +45,8 @@ int main(int argc, char** argv ) {
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
 	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=125000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.5:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0")) return 0;
+	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0")) return 0;
+	//if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0");
 	//These settings might not work
 	//We might have to set these in the startup script
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
@@ -53,9 +54,10 @@ int main(int argc, char** argv ) {
 	stream.set(CAP_PROP_SATURATION, 1.0);
 	stream.set(CAP_PROP_EXPOSURE, 0.001);
 	stream.set(CAP_PROP_FPS, 60);
+	//stream.set(CAP_PROP_BUFFERSIZE, 3);
 
 	setupUDP();
-	initLog();
+	//initLog();
 	clock_t prevTime;
 	int c = 0;
 	usleep(1000000);
@@ -81,18 +83,23 @@ int main(int argc, char** argv ) {
 			return -1;
 			
 		}
-		double fps = 1.0/((double)(cur-prevTime)/CLOCKS_PER_SEC);
+		double fps = 1.0/(((double)(cur-prevTime)/CLOCKS_PER_SEC));
 		prevTime = cur;
+
+	//	char fpsStr[5];
+           //     sprintf(fpsStr, "%.0f", fps);
+          //      putText(frame, fpsStr, Point(610, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
+
 		//writer.write(frame);
 		//frame = imread(argv[1]);
 		//frame = imread("/static-tests/static5.png");
-		cv::blur(frame, frame, Size(3,3));
+		cv::blur(frame, frame, Size(10,10));
 
 		cv::inRange(frame, Scalar(0, 64, 0), Scalar(32, 255, 32), fbw);
 		//std::cout << colorFilter.depth() << std::endl;
 		//std::cout << colorFilter.channels() << std::endl;
 		
-		//cv::cvtColor(colorFilter, colorFilter, COLOR_GRAY2BGR);
+		cv::cvtColor(colorFilter, colorFilter, COLOR_GRAY2BGR);
 		//writer.write(colorFilter);	
 		//cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		
@@ -105,6 +112,7 @@ int main(int argc, char** argv ) {
 		//Canny(fbw, fbw, 100, 100*2, 3);
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
+		
 		findContours(fbw, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0,0) );
 		
 		
@@ -112,8 +120,7 @@ int main(int argc, char** argv ) {
 		vector<vector<Point> > hull( contours.size() ); 
 		for(int i = 0; i < contours.size(); i++) {
 			convexHull(contours[i], hull[i]);
-		}
-		
+		}		
 		
 		vector<Mat> hullImage(hull.size()); //hull points mapped to a drawing in order to get moments
 		vector<Moments> hullMoments(hull.size()); //1st, 2nd and 3rd order moments of each hull
@@ -184,6 +191,7 @@ int main(int argc, char** argv ) {
 							if(magnitude(connector) <= magnitude(centroids[pairs[z].x] - centroids[pairs[z].y])) {
 								pairs[z] = Point(i, n);
 								targets[z] = (centroids[i] + centroids[n])/2;
+								//printf("hull size %n", hull[i].size());
 							} else {
 								break;
 							} 
@@ -201,11 +209,11 @@ int main(int argc, char** argv ) {
 		//Draw everything...
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
-		Mat drawing = fbw;
+		Mat drawing = frame;
 		for( int i = 0; i< contours.size(); i++ ) {
-			if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
-       			drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
-      			drawContours(drawing, hull, i, COLOR_RED, /*FILLED*/2);
+			//if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
+       			//drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
+      			drawContours(drawing, hull, i, COLOR_RED, 2);
 			circle(drawing, centroids[i], 3, COLOR_CYAN, -1);
 			line(drawing, centroids[i], Point(centroids[i].x+20*cos(angles[i]), centroids[i].y+20*sin(angles[i])), COLOR_CYAN,2);
 			
@@ -214,11 +222,6 @@ int main(int argc, char** argv ) {
 			//putText(drawing, c, centroids[i], FONT_HERSHEY_SIMPLEX, 0.3, COLOR_WHITE, 2, LINE_AA); 
 
 			//draw projection vectors
-			/*
-			   for(int n = 0; n < projections[i].size(); n++) {
-				line(drawing, centroids[n], centroids[n] + projections[i][n]*170, COLOR_WHITE, 3);
-			   }		
-			*/
 		}
 		line(drawing, Point(320, 0), Point(320, 480), COLOR_WHITE, 2);
 		//draw pair connectors and centroids only if they are an actual pair
@@ -244,7 +247,7 @@ int main(int argc, char** argv ) {
 		if(c%20>10) circle(drawing, Point(10, 10), 3, COLOR_RED, -1);
 		char fpsStr[5];
 		sprintf(fpsStr, "%.0f", fps);
-		putText(drawing, fpsStr, Point(630, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
+		putText(drawing, fpsStr, Point(590, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 		//Display program vision and original camera frame
 		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
@@ -258,7 +261,7 @@ int main(int argc, char** argv ) {
 		} 
 		//cv::waitKey();
 		sendUDP(data);
-		writer.write(drawing);
+		writer.write(frame);
 	}
 	return 0;
 }
