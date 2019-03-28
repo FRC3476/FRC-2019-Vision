@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_CXX_STANDARD 11)
 project( FRC-2019-vision )
 find_package( OpenCV REQUIRED )
 add_executable( FRC-2019-vision vision.cpp network.cpp log.cpp)

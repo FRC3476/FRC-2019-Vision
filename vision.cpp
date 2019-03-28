@@ -7,6 +7,8 @@
 #include "network.h"
 #include <unistd.h>
 #include <time.h>
+#include <chrono>
+#include <numeric>
 
 #define COLOR_WHITE Scalar(255, 255, 255)	//bgr color space...
 #define COLOR_RED Scalar(0, 0, 255)
@@ -45,7 +47,7 @@ int main(int argc, char** argv ) {
 	cv::VideoWriter writer; 
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
 	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=125000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.5:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0")) return 0;
+	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0")) return 0;
 	//if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0");
 	//These settings might not work
 	//We might have to set these in the startup script
@@ -58,13 +60,16 @@ int main(int argc, char** argv ) {
 
 	setupUDP();
 	//initLog();
-	clock_t prevTime;
+	auto prevTime = std::chrono::high_resolution_clock::now();
 	int c = 0;
 	usleep(1000000);
 	for(int i = 0; i < 30; i++) {
 		Mat frame;
 		stream >> frame;
 	}
+	Mat kernel;
+	kernel  = cv::getStructuringElement(MORPH_RECT, Size(3,3));
+	double fpsA[5] = {0, 0, 0, 0, 0};
 
 	while(1) { 
 		c+=1;
@@ -78,12 +83,17 @@ int main(int argc, char** argv ) {
 		//So we can try putting this on a separate thread
 		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
-		clock_t cur = clock();
-		if((double)(cur - prevTime)/CLOCKS_PER_SEC > 2.0) {
-			return -1;
-			
+		auto cur = std::chrono::high_resolution_clock::now();
+		//std::chrono::duration<double> delta = cur-prevTime;
+		double deltaT = ((double)std::chrono::duration_cast<std::chrono::microseconds>(cur-prevTime).count()/1e6);
+		if(deltaT > 2.0) {
+		//	return -1;
+
 		}
-		double fps = 1.0/(((double)(cur-prevTime)/CLOCKS_PER_SEC));
+		fpsA[c%5] = 1.0/deltaT;
+		double fps = 0;
+		for(int i = 0; i < 5; i++) fps+=fpsA[i];
+		fps /= 5;
 		prevTime = cur;
 
 	//	char fpsStr[5];
@@ -93,14 +103,21 @@ int main(int argc, char** argv ) {
 		//writer.write(frame);
 		//frame = imread(argv[1]);
 		//frame = imread("/static-tests/static5.png");
-		cv::blur(frame, frame, Size(10,10));
+		//cv::blur(frame, frame, Size(10,10));
 
-		cv::inRange(frame, Scalar(0, 64, 0), Scalar(32, 255, 32), fbw);
+		//cv::inRange(frame, Scalar(0, 64, 0), Scalar(32, 255, 32), fbw);
+		cv::cvtColor(frame, fbw, COLOR_BGR2HSV); 
+		cv::inRange(fbw, Scalar(50,200,80), Scalar(70, 255, 255), fbw);
+		//cv::cvtColor(frame, frame, COLOR_HSV2BGR);
+
+		//fbw = 255- fbw;
 		//std::cout << colorFilter.depth() << std::endl;
 		//std::cout << colorFilter.channels() << std::endl;
-		
-		cv::cvtColor(colorFilter, colorFilter, COLOR_GRAY2BGR);
+		cv::morphologyEx(fbw, fbw, MORPH_OPEN, kernel); 
+
+		//cv::cvtColor(fbw, colorFilter, COLOR_GRAY2BGR);
 		//writer.write(colorFilter);	
+		//continue;
 		//cv::cvtColor(frame, fbw, COLOR_BGR2GRAY);
 		
 		/*You dont need to do canny. The exposure
@@ -208,8 +225,9 @@ int main(int argc, char** argv ) {
 		
 		//Draw everything...
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
-  		cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
-		Mat drawing = frame;
+  		//cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
+		cv::cvtColor(fbw, colorFilter, COLOR_GRAY2BGR);
+		Mat drawing = colorFilter;
 		for( int i = 0; i< contours.size(); i++ ) {
 			//if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			//drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
@@ -261,7 +279,7 @@ int main(int argc, char** argv ) {
 		} 
 		//cv::waitKey();
 		sendUDP(data);
-		writer.write(frame);
+		writer.write(drawing);
 	}
 	return 0;
 }
