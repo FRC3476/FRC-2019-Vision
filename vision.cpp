@@ -22,6 +22,8 @@
 //1.5
 #define SMALL_PIXEL_CULL 50
 
+//#define matMoments
+
 using namespace cv;
 using namespace std;
 
@@ -138,15 +140,22 @@ int main(int argc, char** argv ) {
 		for(int i = 0; i < contours.size(); i++) {
 			convexHull(contours[i], hull[i]);
 		}		
-		
+
+		#ifdef matMoments
 		vector<Mat> hullImage(hull.size()); //hull points mapped to a drawing in order to get moments
+		#endif
+		
+
 		vector<Moments> hullMoments(hull.size()); //1st, 2nd and 3rd order moments of each hull
 		vector<Point2d> centroids(hull.size());	//centroids of each hull
 		vector<double> angles(hull.size()); //angle from x axis of each hull
 		vector<Point2d> targets; //centroids of each FRC vision target
 		vector<Point2d> o_target(hull.size()); //normalized direction vector of each hull
 
+		auto start = std::chrono::high_resolution_clock::now();
+		auto end = std::chrono::high_resolution_clock::now();
 		for(int i = 0; i < hull.size(); i++) {
+			#ifdef matMoments
 			//Grayscale hull drawings to calculate moments
 			hullImage[i] = Mat::zeros( fbw.size(), CV_8UC1);
 			Mat colormat = Mat::zeros( fbw.size(), CV_8UC3);
@@ -154,8 +163,14 @@ int main(int argc, char** argv ) {
 			cvtColor(colormat, hullImage[i], COLOR_BGR2GRAY);
 
 			//calculate moments and centroids
-			hullMoments[i] = moments(hullImage[i], true);
-			centroids[i] = Point2d(hullMoments[i].m10/hullMoments[i].m00, hullMoments[i].m01/hullMoments[i].m00); 
+			//start = std::chrono::high_resolution_clock::now();
+			//hullMoments[i] = moments(hullImage[i], true);
+			#else
+			hullMoments[i] = moments(hull[i], true);
+			#endif
+			//printf("good: %0.2f bad: %0.2f \n", t.m01, hullMoments[i].m01);
+			//end = std::chrono::high_resolution_clock::now();
+			centroids[i] = Point2d(hullMoments[i].m10/hullMoments[i].m00, hullMoments[i].m01/hullMoments[i].m00);
 			//if(hullMoments[i].m00 < 10) ;
 			//calculate second order mu prime central moments
 			double mp11 = hullMoments[i].mu11/hullMoments[i].m00;
@@ -170,8 +185,12 @@ int main(int argc, char** argv ) {
 
 			o_target[i] = Point2d(cos(angles[i]), sin(angles[i]));
 		}
-		
+                end = std::chrono::high_resolution_clock::now();
+		//double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
+		//printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT); 
 		//find the target pairs
+		//start = std::chrono::high_resolution_clock::now();
+
 		vector<vector<Point2d> > projections; //projection vectors
 		vector<Point> pairs; //indicies of each pair
 		for(int i = 0; i < hull.size(); i++) {
@@ -222,7 +241,12 @@ int main(int argc, char** argv ) {
 			}
 			projections.push_back(current);	
 		}
-		
+		//end = std::chrono::high_resolution_clock::now();
+		// double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
+                //printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT);
+
+		//start = std::chrono::high_resolution_clock::now();
+
 		//Draw everything...
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		//cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
@@ -266,17 +290,19 @@ int main(int argc, char** argv ) {
 		char fpsStr[5];
 		sprintf(fpsStr, "%.0f", fps);
 		putText(drawing, fpsStr, Point(590, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
+
+		char hullCnt[5]; 
+		sprintf(hullCnt, "%d", (int)hull.size());
+		putText(drawing, hullCnt, Point(590, 400), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 		//Display program vision and original camera frame
 		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
 		//waitKey pauses for whatever ms so only put 1 inside
 		//also imshow doesnt work if you don't call waitKey
 		
-		if(cv::waitKey(10)==27)
-		{
-			stream.release();
-			break;
-		} 
+		//end = std::chrono::high_resolution_clock::now();
+ 		 //double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
+                //printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT);
 		//cv::waitKey();
 		sendUDP(data);
 		writer.write(drawing);
