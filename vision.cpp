@@ -47,17 +47,33 @@ int main(int argc, char** argv ) {
 	std::string dataline;
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
+	stream.set(CAP_PROP_FPS, 60);
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
 	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=125000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.5:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0")) return 0;
+	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.3:1.0-video-index0")) return 0;
 	//if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0");
 	//These settings might not work
 	//We might have to set these in the startup script
+	//stream.set(CAP_PROP_MODE, 0);
+	//stream.release();
+	//stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.4:1.0-video-index0");
+	//stream.set(CAP_PROP_MODE, 0);
+
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
 	stream.set(CAP_PROP_CONTRAST, 1.0);
 	stream.set(CAP_PROP_SATURATION, 1.0);
 	stream.set(CAP_PROP_EXPOSURE, 0.001);
 	stream.set(CAP_PROP_FPS, 60);
+	//stream.set(CAP_PROP_FRAME_WIDTH, 1920);
+	//stream.set(CAP_PROP_FRAME_HEIGHT, 1080);
+	//stream.set(CAP_PROP_FPS, 1020);
+	//for(int i = 1; i < 2; i++) {
+	//	std::cout << stream.set(CAP_PROP_MODE, 0) << std::endl;
+	//}
+	stream.set(CAP_PROP_FRAME_WIDTH, 640);
+	stream.set(CAP_PROP_FRAME_HEIGHT,480);
+	//stream.set(CAP_PROP_FPS, 60);
+	//stream.set(CAP_PROP_FOURCC, VideoWriter::fourcc('M', 'J', 'P', 'G'));
 	//stream.set(CAP_PROP_BUFFERSIZE, 3);
 
 	setupUDP();
@@ -89,7 +105,7 @@ int main(int argc, char** argv ) {
 		//std::chrono::duration<double> delta = cur-prevTime;
 		double deltaT = ((double)std::chrono::duration_cast<std::chrono::microseconds>(cur-prevTime).count()/1e6);
 		if(deltaT > 2.0) {
-		//	return -1;
+			//return -1;
 
 		}
 		fpsA[c%5] = 1.0/deltaT;
@@ -251,7 +267,7 @@ int main(int argc, char** argv ) {
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		//cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
 		cv::cvtColor(fbw, colorFilter, COLOR_GRAY2BGR);
-		Mat drawing = colorFilter;
+		Mat drawing = frame;//colorFilter;
 		for( int i = 0; i< contours.size(); i++ ) {
 			//if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			//drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
