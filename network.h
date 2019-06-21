@@ -11,3 +11,5 @@ struct exp_data {
 int sendUDP(std::vector<exp_data> d);
 
 void setupUDP();
+
+bool getExposure();

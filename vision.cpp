@@ -23,6 +23,10 @@
 #define SMALL_PIXEL_CULL 50
 
 //#define matMoments
+#define USE_GSTREAMER 0
+
+#define HIGH_EXP 0.03
+#define LOW_EXP 0.001
 
 using namespace cv;
 using namespace std;
@@ -43,15 +47,22 @@ float magnitude(Point2d p) {
 
 
 int main(int argc, char** argv ) {
+	bool curExpHigh = false;
 	//initialize stream and camera parameters
 	std::string dataline;
 	cv::VideoCapture stream; 
 	cv::VideoWriter writer; 
-	stream.set(CAP_PROP_FPS, 60);
+	//stream.set(CAP_PROP_FPS, 60);
 	//writer.open("appsrc ! autovideoconvert ! omxh264enc control-rate=2 bitrate=4000000 ! 'video/x-h264, stream-format=(string)byte-stream' ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.10.40.86:5000 port=5000 sync=false async=false ", 0, (double) 5, cv::Size(640,480), true);
 	writer.open("appsrc ! autovideoconvert ! video/x-raw, width=640, height=480 ! omxh264enc control-rate=2 bitrate=125000 ! video/x-h264, stream-format=byte-stream ! h264parse ! rtph264pay mtu=1400 ! udpsink host=127.0.0.1 clients=10.34.76.5:5800 port=5800 sync=false async=false ", 0, (double) 5, cv::Size(640, 480), true);
-	if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.3:1.0-video-index0")) return 0;
-	//if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3:1.0-video-index0");
+	#if USE_GSTREAMER
+		if(!stream.open("v4l2src device=/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.3:1.0-video-index0 ! image/jpeg, width=640, height=480 ! jpegparse ! jpegdec ! videoconvert ! appsink")) return 0;
+	#else
+		if(!stream.open("/dev/v4l/by-path/platform-tegra-xhci-usb-0:3.3:1.0-video-index0")) return 0;
+		stream.set(CAP_PROP_FRAME_WIDTH, 640);
+        	stream.set(CAP_PROP_FRAME_HEIGHT,480);
+        	stream.set(CAP_PROP_FPS, 60);
+	#endif
 	//These settings might not work
 	//We might have to set these in the startup script
 	//stream.set(CAP_PROP_MODE, 0);
@@ -62,21 +73,23 @@ int main(int argc, char** argv ) {
 	stream.set(CAP_PROP_BRIGHTNESS, 0.5);
 	stream.set(CAP_PROP_CONTRAST, 1.0);
 	stream.set(CAP_PROP_SATURATION, 1.0);
-	stream.set(CAP_PROP_EXPOSURE, 0.001);
-	stream.set(CAP_PROP_FPS, 60);
+	stream.set(CAP_PROP_EXPOSURE, 0.001); //0.001
+	//stream.set(CAP_PROP_FPS, 60);
 	//stream.set(CAP_PROP_FRAME_WIDTH, 1920);
 	//stream.set(CAP_PROP_FRAME_HEIGHT, 1080);
 	//stream.set(CAP_PROP_FPS, 1020);
 	//for(int i = 1; i < 2; i++) {
 	//	std::cout << stream.set(CAP_PROP_MODE, 0) << std::endl;
 	//}
-	stream.set(CAP_PROP_FRAME_WIDTH, 640);
-	stream.set(CAP_PROP_FRAME_HEIGHT,480);
+	//stream.set(CAP_PROP_FRAME_WIDTH, 640);
+	//stream.set(CAP_PROP_FRAME_HEIGHT,480);
 	//stream.set(CAP_PROP_FPS, 60);
 	//stream.set(CAP_PROP_FOURCC, VideoWriter::fourcc('M', 'J', 'P', 'G'));
 	//stream.set(CAP_PROP_BUFFERSIZE, 3);
 
 	setupUDP();
+	printf("setup uDP \n");
+	//while(1);
 	//initLog();
 	auto prevTime = std::chrono::high_resolution_clock::now();
 	int c = 0;
@@ -90,6 +103,7 @@ int main(int argc, char** argv ) {
 	double fpsA[5] = {0, 0, 0, 0, 0};
 
 	while(1) { 
+//		printf("bug");
 		c+=1;
 		if(!stream.isOpened()) return -1;
 		std::stringstream logLine;
@@ -101,6 +115,12 @@ int main(int argc, char** argv ) {
 		//So we can try putting this on a separate thread
 		//std::cout << "reading frame" << std::endl;
 		stream >> frame;
+		bool expStateHigh = getExposure();
+		if(expStateHigh != curExpHigh) {
+			curExpHigh = expStateHigh;
+			if(expStateHigh) stream.set(CAP_PROP_EXPOSURE, HIGH_EXP);
+			else stream.set(CAP_PROP_EXPOSURE, LOW_EXP);
+		}
 		auto cur = std::chrono::high_resolution_clock::now();
 		//std::chrono::duration<double> delta = cur-prevTime;
 		double deltaT = ((double)std::chrono::duration_cast<std::chrono::microseconds>(cur-prevTime).count()/1e6);
@@ -179,7 +199,7 @@ int main(int argc, char** argv ) {
 			cvtColor(colormat, hullImage[i], COLOR_BGR2GRAY);
 
 			//calculate moments and centroids
-			//start = std::chrono::high_resolution_clock::now();
+			start = std::chrono::high_resolution_clock::now();
 			//hullMoments[i] = moments(hullImage[i], true);
 			#else
 			hullMoments[i] = moments(hull[i], true);
@@ -201,11 +221,11 @@ int main(int argc, char** argv ) {
 
 			o_target[i] = Point2d(cos(angles[i]), sin(angles[i]));
 		}
-                end = std::chrono::high_resolution_clock::now();
+                //end = std::chrono::high_resolution_clock::now();
 		//double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
 		//printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT); 
 		//find the target pairs
-		//start = std::chrono::high_resolution_clock::now();
+		start = std::chrono::high_resolution_clock::now();
 
 		vector<vector<Point2d> > projections; //projection vectors
 		vector<Point> pairs; //indicies of each pair
@@ -257,7 +277,7 @@ int main(int argc, char** argv ) {
 			}
 			projections.push_back(current);	
 		}
-		//end = std::chrono::high_resolution_clock::now();
+		end = std::chrono::high_resolution_clock::now();
 		// double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
                 //printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT);
 
@@ -267,7 +287,12 @@ int main(int argc, char** argv ) {
 		//Mat drawing = Mat::zeros( fbw.size(), CV_8UC3 );		
   		//cv::cvtColor(fbw, fbw, COLOR_GRAY2BGR);
 		cv::cvtColor(fbw, colorFilter, COLOR_GRAY2BGR);
-		Mat drawing = frame;//colorFilter;
+
+
+
+
+		//Mat drawing = (frame*8)-100;//colorFilter;
+		Mat drawing = frame;
 		for( int i = 0; i< contours.size(); i++ ) {
 			//if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			//drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
