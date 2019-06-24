@@ -93,6 +93,7 @@ int main(int argc, char** argv ) {
 	//initLog();
 	auto prevTime = std::chrono::high_resolution_clock::now();
 	int c = 0;
+	int prevSwitchC = 0;
 	usleep(1000000);
 	for(int i = 0; i < 30; i++) {
 		Mat frame;
@@ -101,7 +102,7 @@ int main(int argc, char** argv ) {
 	Mat kernel;
 	kernel  = cv::getStructuringElement(MORPH_RECT, Size(3,3));
 	double fpsA[5] = {0, 0, 0, 0, 0};
-
+	bool trackMode = false;
 	while(1) { 
 //		printf("bug");
 		c+=1;
@@ -119,8 +120,12 @@ int main(int argc, char** argv ) {
 		if(expStateHigh != curExpHigh) {
 			curExpHigh = expStateHigh;
 			if(expStateHigh) stream.set(CAP_PROP_EXPOSURE, HIGH_EXP);
-			else stream.set(CAP_PROP_EXPOSURE, LOW_EXP);
+			else {
+				stream.set(CAP_PROP_EXPOSURE, LOW_EXP);
+				prevSwitchC = c;
+			}
 		}
+		trackMode = !curExpHigh && c -prevSwitchC>=3;
 		auto cur = std::chrono::high_resolution_clock::now();
 		//std::chrono::duration<double> delta = cur-prevTime;
 		double deltaT = ((double)std::chrono::duration_cast<std::chrono::microseconds>(cur-prevTime).count()/1e6);
@@ -292,7 +297,8 @@ int main(int argc, char** argv ) {
 
 
 		//Mat drawing = (frame*8)-100;//colorFilter;
-		Mat drawing = frame;
+		Mat drawing = frame;//frame.clone();
+		if(trackMode) {
 		for( int i = 0; i< contours.size(); i++ ) {
 			//if(hullMoments[i].m00 < SMALL_PIXEL_CULL) continue;
        			//drawContours( drawing, contours, i, COLOR_WHITE, 2, 8, hierarchy, 0, Point() );
@@ -326,15 +332,16 @@ int main(int argc, char** argv ) {
 			//log(logLine.str());
 			data.push_back(t);
 		}
+		char hullCnt[5];
+                sprintf(hullCnt, "%d", (int)hull.size());
+                putText(drawing, hullCnt, Point(590, 400), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 
+		}
 		if(c%20>10) circle(drawing, Point(10, 10), 3, COLOR_RED, -1);
 		char fpsStr[5];
 		sprintf(fpsStr, "%.0f", fps);
 		putText(drawing, fpsStr, Point(590, 10), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 
-		char hullCnt[5]; 
-		sprintf(hullCnt, "%d", (int)hull.size());
-		putText(drawing, hullCnt, Point(590, 400), FONT_HERSHEY_SIMPLEX, 0.5, COLOR_RED, 2, LINE_AA);
 		//Display program vision and original camera frame
 		//cv::imshow("frame", drawing);
 		//cv::imshow("original", frame);
@@ -345,7 +352,10 @@ int main(int argc, char** argv ) {
  		 //double dt = ((double)std::chrono::duration_cast<std::chrono::microseconds>(end-start).count()/1e6);
                 //printf("segment time: %0.6f  _____ total time: %0.6f \n", dt, deltaT);
 		//cv::waitKey();
-		sendUDP(data);
+		if(trackMode) {
+			sendUDP(data);
+			//writer.write(drawing);
+		} 
 		writer.write(drawing);
 	}
 	return 0;
