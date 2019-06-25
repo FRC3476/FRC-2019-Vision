@@ -150,7 +150,7 @@ int main(int argc, char** argv ) {
 
 		//cv::inRange(frame, Scalar(0, 64, 0), Scalar(32, 255, 32), fbw);
 		cv::cvtColor(frame, fbw, COLOR_BGR2HSV); 
-		cv::inRange(fbw, Scalar(50,200,80), Scalar(70, 255, 255), fbw);
+		cv::inRange(fbw, Scalar(50,200,40), Scalar(70, 255, 255), fbw);
 		//cv::cvtColor(frame, frame, COLOR_HSV2BGR);
 
 		//fbw = 255- fbw;
