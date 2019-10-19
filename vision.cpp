@@ -15,7 +15,7 @@
 #define COLOR_CYAN Scalar(255, 255, 0)
 #define COLOR_ORANGE Scalar(0, 128, 255)
 
-#define MAX_MAG_ERROR 0.0085 
+#define MAX_MAG_ERROR 0.0035 //0.0085 
 //0.0015
 #define SIZE_TO_DISTANCE_RATIO 2.4
 #define MAX_SIZE_TO_DISTANCE_ERROR 0.5 
